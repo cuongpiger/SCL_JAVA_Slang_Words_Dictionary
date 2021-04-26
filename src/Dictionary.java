@@ -16,16 +16,24 @@ class Word {
 }
 
 public class Dictionary {
-    private HashMap<String, Word> dict = null;
-    private HashMap<String, String> dict_rev = null;
-    private final String db = "data/slang_.txt";
+    private static HashMap<String, Word> dict = null;
+    private static HashMap<String, Word> dict_rev = null;
+    private final String db = "DATABASES/slang_.txt";
 
     Dictionary() {
         dict = new HashMap<String, Word>();
-        dict_rev = new HashMap<String, String>();
+        dict_rev = new HashMap<String, Word>();
     }
 
-    private void loadDB() {
+    public HashMap<String, Word> get_dict() {
+        return dict;
+    }
+
+    public HashMap<String, Word> get_dict_rev() {
+        return dict_rev;
+    }
+
+    public void loadDB() {
         try (BufferedReader br = new BufferedReader(new FileReader(db))) {
             String row;
             br.readLine();
@@ -50,27 +58,18 @@ public class Dictionary {
                     word.defs.addAll(defs_ori);
                 }
 
-                for (var def: defs_key) {
-                    if (!dict_rev.containsKey(def)) {
-                        dict_rev.put(def, slang_key);
+                for (int i = 0; i < defs_key.size(); ++i) {
+                    if (!dict_rev.containsKey(defs_key.get(i))) {
+                        Word word = new Word(defs_ori.get(i), new ArrayList<String>(Arrays.asList(slang_key)));
+                        dict_rev.put(defs_key.get(i), word);
+                    } else {
+                        Word word = dict_rev.get(defs_key.get(i));
+                        word.defs.add(slang_key);
                     }
                 }
             }
         } catch (IOException err) {
             System.out.println("==> Inside the method Dictionary.loadDB() errors occurred!!!");
         }
-    }
-
-    public static void main(String[] args) {
-        Dictionary dict = new Dictionary();
-        dict.loadDB();
-
-//        String string = "I will come and meet you at the 123woods";
-//        String keyword = "123woods";
-//
-//        Boolean found = Arrays.asList(string.split(" ")).contains(keyword);
-//        if(found){
-//            System.out.println("Keyword matched the string");
-//        }
     }
 }
