@@ -18,7 +18,7 @@ class Word {
 public class Dictionary {
     private static HashMap<String, Word> dict = null;
     private static HashMap<String, Word> dict_rev = null;
-    private final String db = "DATABASES/slang_.txt";
+    private static final String db = "DATABASES/slang.txt";
 
     Dictionary() {
         dict = new HashMap<String, Word>();
@@ -70,6 +70,32 @@ public class Dictionary {
             }
         } catch (IOException err) {
             System.out.println("==> Inside the method Dictionary.loadDB() errors occurred!!!");
+        }
+    }
+
+    public void searchBasedSlang(String keyword) {
+        if (dict.containsKey(keyword)) {
+            var word = dict.get(keyword);
+
+            System.out.println("\uD83D\uDD0E The meaning of '" + word.word + "' is:");
+            for (var def: word.defs) {
+                System.out.println("  \uD83D\uDD38 " + def);
+            }
+        } else {
+            System.out.println("\uD83D\uDCAC Your word does not exist in the data!!!");
+        }
+    }
+
+    public void searchBasedDefinition(String keyword) {
+        if (dict_rev.containsKey(keyword)) {
+            var word = dict_rev.get(keyword);
+
+            System.out.println("\uD83D\uDD0E The slang-word of '" + word.word + "' is:");
+            for (var def: word.defs) {
+                System.out.println("  \uD83D\uDD38 " + dict.get(def).word);
+            }
+        } else {
+            System.out.println("\uD83D\uDCAC Your definition does not exist in the data!!!");
         }
     }
 }
