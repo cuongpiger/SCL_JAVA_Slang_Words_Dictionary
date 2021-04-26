@@ -42,7 +42,7 @@ public class Dictionary {
                 String[] splits = row.split("`", 2);
 
                 if (splits.length != 2) {
-                    splits = new String[] {splits[0], ""};
+                    splits = new String[]{splits[0], ""};
                 }
 
                 String slang_key = splits[0].trim().toLowerCase();
