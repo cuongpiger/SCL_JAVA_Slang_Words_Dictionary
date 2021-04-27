@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -28,12 +27,12 @@ public class App {
                 System.out.println("   1. Search based on slang-word");
                 System.out.println("   2. Search based on definition");
                 System.out.println("   3. Show search history");
-                System.out.print("Enter your choice: ");
+                System.out.print("\nEnter your choice: ");
 
                 choose = scanner.nextInt();
             }
         } catch (IllegalStateException | NoSuchElementException e) {
-            System.out.println("==> Inside the method App.showMenu() errors occurred!!!");
+            System.out.println("⛔ Inside the method App.showMenu() errors occurred!!!");
         }
 
         return choose;
@@ -42,7 +41,7 @@ public class App {
     static void pressEnter() {
         String key_press = "";
         do {
-            System.out.println("\uD83D\uDCA1 Press 'ENTER' to continue...");
+            System.out.println("\uD83D\uDCFA Press 'ENTER' to continue...");
             key_press = (new Scanner(System.in)).nextLine();
         } while (key_press == "");
     }
@@ -74,6 +73,9 @@ public class App {
                 keyword = enterKeyword(choice);
                 dictionary.searchBasedDefinition(keyword);
                 break;
+
+            case 3:
+                dictionary.showHistory();
         }
 
         pressEnter();
@@ -89,7 +91,7 @@ public class App {
                     choose = showMenu();
                 }
             } catch (IOException err) {
-                System.out.println("==> Inside the method App.main() errors occurred!!!");
+                System.out.println("⛔ Inside the method App.main() errors occurred!!!");
             }
 
             clearScreen();
