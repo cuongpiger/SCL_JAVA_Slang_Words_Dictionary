@@ -108,8 +108,10 @@ public class Dictionary {
             var word = dict.get(keyword);
 
             System.out.println("\uD83D\uDD0E The meaning of '" + word.word + "' is:");
+
+            int id = 0;
             for (var def : word.defs) {
-                System.out.println("  \uD83D\uDD38 " + def);
+                System.out.println("  \uD83D\uDD38 " + ++id + ". " + def);
             }
 
             // save to history
@@ -130,8 +132,10 @@ public class Dictionary {
             var word = dict_rev.get(keyword);
 
             System.out.println("\uD83D\uDD0E The slang-word of '" + word.word + "' is:");
+            int id = 0;
+
             for (var def : word.defs) {
-                System.out.println("  \uD83D\uDD38 " + dict.get(def).word);
+                System.out.println("  \uD83D\uDD38 " + ++id + ". " + dict.get(def).word);
             }
 
             history_dict_rev.add(new History(keyword, word.word));
@@ -193,15 +197,68 @@ public class Dictionary {
             defs.clear();
             defs.add(def);
 
-            System.out.println("\uD83D\uDCFA This word has been added to the data successfully.");
+            Word tmp_word = dict_rev.get(word);
+
+            for (var d : tmp_word.defs) {
+                if (d.equals(def)) {
+                    System.out.println("\uD83D\uDCAC You defined it!!!");
+
+                    return;
+                }
+            }
+
+            tmp_word.defs.add(def);
         } else if (option == 2) {
             var defs = dict.get(word.toLowerCase()).defs;
             defs.add(def);
+
+            Word tmp_word = dict_rev.get(word);
+            tmp_word.defs.clear();
+            tmp_word.defs.add(def);
         } else if (option == 4) {
             Word new_word = new Word(word, new ArrayList<String>(Arrays.asList(def)));
             dict.put(word.toLowerCase(), new_word);
 
-            System.out.println("\uD83D\uDCFA This word has been added to the data successfully.");
+            Word new_word_rev = new Word(def, new ArrayList<String>(Arrays.asList(word.toLowerCase())));
+
+            if (dict_rev.containsKey(def.toLowerCase())) {
+                dict_rev.get(def.toLowerCase()).defs.add(word.toLowerCase());
+            } else {
+                dict_rev.put(def.toLowerCase(), new_word_rev);
+            }
         }
+
+        System.out.println("\uD83D\uDCFA This word has been added to the data successfully.");
+    }
+
+    public void updateSlang(String word, int id, String n_def) {
+        var defs = dict.get(word).defs;
+        var del_def = defs.get(id);
+
+        if (defs.contains(n_def)) {
+            defs.remove(id);
+
+            dict_rev.get(del_def.toLowerCase()).defs.remove(dict_rev.get(del_def.toLowerCase()).defs.indexOf(word.toLowerCase()));
+
+            if (dict_rev.get(del_def.toLowerCase()).defs.size() == 0) {
+                dict_rev.remove(del_def.toLowerCase());
+            }
+
+            System.out.println("\uD83D\uDCFA This word has been edited successfully.");
+
+            return;
+        }
+
+        defs.set(id, n_def);
+
+        if (!dict_rev.containsKey(n_def.toLowerCase())) {
+            Word new_word = new Word(n_def, new ArrayList<String>(Arrays.asList(word.toLowerCase())));
+            dict_rev.put(n_def.toLowerCase(), new_word);
+        } else {
+            var tmp_word = dict_rev.get(n_def);
+            tmp_word.defs.set(tmp_word.defs.indexOf(word.toLowerCase()), word.toLowerCase());
+        }
+
+        System.out.println("\uD83D\uDCFA This word has been edited successfully.");
     }
 }

@@ -21,7 +21,7 @@ public class App {
         Scanner scanner = new Scanner(System.in);
 
         try {
-            while (choose < 1 || choose > 4) {
+            while (choose < 1 || choose > 5) {
                 clearScreen();
 
                 System.out.println("\uD83D\uDCD6 SLANG-WORD DICTIONARY \uD83D\uDCD6");
@@ -29,6 +29,7 @@ public class App {
                 System.out.println("   2. Search based on definition");
                 System.out.println("   3. Show search history");
                 System.out.println("   4. Add a new slang-word");
+                System.out.println("   5. Edit a slang-word");
                 System.out.print("\nEnter your choice: ");
 
                 choose = scanner.nextInt();
@@ -110,10 +111,51 @@ public class App {
                 def = (new Scanner(System.in)).nextLine().trim();
             } while (def.isBlank() || def.isEmpty());
 
-            if (choose == 3){
+            if (choose == 3) {
                 return "";
             } else {
                 return keyword.trim() + "`" + choose + "`" + def;
+            }
+        }
+
+        if (choice == 5) {
+            String screen = "Enter your slang-word which you need to edit (slang-word cannot be empty): ";
+            int id = -1;
+            String new_definition = "";
+
+            do {
+                clearScreen();
+
+                System.out.print(screen);
+                keyword = (new Scanner(System.in)).nextLine().trim();
+            } while (keyword.isBlank() || keyword.isEmpty());
+
+            screen += keyword + "\nEnter the definition ID which you want to edit: ";
+
+            if (!dictionary.get_dict().containsKey(keyword.toLowerCase())) {
+                System.out.println("\uD83D\uDCAC Your word does not exist in the data!!!");
+
+                return "";
+            } else {
+                do {
+                    clearScreen();
+                    dictionary.searchBasedSlang(keyword);
+
+                    System.out.print(screen);
+
+                    try {
+                        id = (new Scanner(System.in)).nextInt();
+                    } catch (Exception err) {
+                        id = -1;
+                    }
+                } while (id < 1 || id > dictionary.get_dict().get(keyword.toLowerCase()).defs.size());
+
+                do {
+                    System.out.print("\uD83D\uDCAC Enter your new definition: ");
+                    new_definition = (new Scanner(System.in)).nextLine().trim();
+                } while (new_definition.isBlank() || new_definition.isEmpty());
+
+                return keyword + "`" + (id - 1) + "`" + new_definition;
             }
         }
 
@@ -149,6 +191,14 @@ public class App {
                 }
 
                 break;
+
+            case 5:
+                keyword = enterKeyword(choice);
+
+                if (keyword != "") {
+                    String[] splits = keyword.split("`");
+                    dictionary.updateSlang(splits[0], Integer.parseInt(splits[1]), splits[2]);
+                }
         }
 
         pressEnter();
