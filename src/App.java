@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -20,13 +21,14 @@ public class App {
         Scanner scanner = new Scanner(System.in);
 
         try {
-            while (choose == 0) {
+            while (choose < 1 || choose > 4) {
                 clearScreen();
 
                 System.out.println("\uD83D\uDCD6 SLANG-WORD DICTIONARY \uD83D\uDCD6");
                 System.out.println("   1. Search based on slang-word");
                 System.out.println("   2. Search based on definition");
                 System.out.println("   3. Show search history");
+                System.out.println("   4. Add a new slang-word");
                 System.out.print("\nEnter your choice: ");
 
                 choose = scanner.nextInt();
@@ -56,9 +58,66 @@ public class App {
                 System.out.print("Enter your keyword (keyword cannot be empty): ");
                 keyword = (new Scanner(System.in)).nextLine().trim();
             } while (keyword == "");
+
+            return keyword.trim().toLowerCase();
         }
 
-        return keyword.trim().toLowerCase();
+        if (choice == 4) {
+            int choose = 0;
+            String def = "";
+            String screen = "Enter your new slang-word (slang-word cannot be empty): ";
+
+            do {
+                clearScreen();
+
+                System.out.print(screen);
+                keyword = (new Scanner(System.in)).nextLine().trim();
+            } while (keyword.isBlank() || keyword.isEmpty());
+
+            screen += keyword;
+
+            if (dictionary.get_dict().containsKey(keyword.toLowerCase())) {
+                Scanner scanner = new Scanner(System.in);
+                screen += ("\n\uD83D\uDCAC '" + keyword + "' was already existed in the data. Do you want...");
+                screen += "\n   1. Overwrite\n   2. Duplicate\n   3. Cancel\n\nEnter your choice: ";
+
+                try {
+                    while (choose < 1 || choose > 3) {
+                        clearScreen();
+                        System.out.print(screen);
+
+                        choose = scanner.nextInt();
+
+                        if (choose == 3) {
+                            return "";
+                        }
+                    }
+                } catch (IllegalStateException | NoSuchElementException e) {
+                    System.out.println("⛔ Inside the method App.enterKeyword() errors occurred!!!");
+                }
+
+                screen += choose;
+            } else {
+                choose = 4;
+            }
+
+            screen += "\nEnter your definition (definition cannot be empty): ";
+
+            do {
+                clearScreen();
+
+                System.out.print(screen);
+                def = (new Scanner(System.in)).nextLine().trim();
+            } while (def.isBlank() || def.isEmpty());
+
+            if (choose == 3){
+                return "";
+            } else {
+                return keyword.trim() + "`" + choose + "`" + def;
+            }
+        }
+
+        return "";
     }
 
     static void handle(int choice) {
@@ -76,6 +135,20 @@ public class App {
 
             case 3:
                 dictionary.showHistory();
+                break;
+
+            case 4:
+                keyword = enterKeyword(choice);
+
+                if (keyword != "") {
+                    String[] splits = keyword.split("`");
+                    String word = splits[0];
+                    int choose = Integer.parseInt(splits[1]);
+                    String def = splits[2].trim();
+                    dictionary.addSlangWord(word, def, choose);
+                }
+
+                break;
         }
 
         pressEnter();

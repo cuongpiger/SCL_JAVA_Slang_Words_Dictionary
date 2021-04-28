@@ -36,7 +36,7 @@ public class Dictionary {
     private static HashMap<String, Word> dict_rev = null;
     private static ArrayList<History> history_dict = null;
     private static ArrayList<History> history_dict_rev = null;
-    private static final String db = "DATABASES/slang.txt";
+    private static final String db = "DATABASES/slang_.txt";
     private static final String db_history_dict = "DATABASES/db_history_dict.ser";
     private static final String db_history_dict_rev = "DATABASES/db_history_dict_rev.ser";
 
@@ -184,6 +184,24 @@ public class Dictionary {
             String slang = i < history_dict.size() ? history_dict.get(i).word : "";
             String def = i < history_dict_rev.size() ? history_dict_rev.get(i).word : "";
             System.out.format("%40s%40s%n", slang, def);
+        }
+    }
+
+    public void addSlangWord(String word, String def, int option) {
+        if (option == 1) {
+            var defs = dict.get(word.toLowerCase()).defs;
+            defs.clear();
+            defs.add(def);
+
+            System.out.println("\uD83D\uDCFA This word has been added to the data successfully.");
+        } else if (option == 2) {
+            var defs = dict.get(word.toLowerCase()).defs;
+            defs.add(def);
+        } else if (option == 4) {
+            Word new_word = new Word(word, new ArrayList<String>(Arrays.asList(def)));
+            dict.put(word.toLowerCase(), new_word);
+
+            System.out.println("\uD83D\uDCFA This word has been added to the data successfully.");
         }
     }
 }
