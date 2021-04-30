@@ -21,7 +21,7 @@ public class App {
         Scanner scanner = new Scanner(System.in);
 
         try {
-            while (choose < 1 || choose > 5) {
+            while (choose < 1 || choose > 6) {
                 clearScreen();
 
                 System.out.println("\uD83D\uDCD6 SLANG-WORD DICTIONARY \uD83D\uDCD6");
@@ -30,6 +30,7 @@ public class App {
                 System.out.println("   3. Show search history");
                 System.out.println("   4. Add a new slang-word");
                 System.out.println("   5. Edit a slang-word");
+                System.out.println("   6. Delete a slang-word");
                 System.out.print("\nEnter your choice: ");
 
                 choose = scanner.nextInt();
@@ -159,6 +160,30 @@ public class App {
             }
         }
 
+        if (choice == 6) {
+            String sw = "";
+            String confirm = "";
+            String screen = "Enthe the slang-word which you want to delete: ";
+
+            do {
+                clearScreen();
+                System.out.print(screen);
+                sw = (new Scanner(System.in)).nextLine().trim();
+            } while (sw.isBlank() || sw.isEmpty());
+
+            screen += sw;
+
+            do {
+                clearScreen();
+                screen += String.format("\nDo you really want to delete '%s' forever? [Y/N]: ", sw);
+                System.out.print(screen);
+
+                confirm = (new Scanner(System.in)).nextLine().trim().toLowerCase();
+            } while (!confirm.equals("y") && !confirm.equals("n"));
+
+            return (sw + "`" + confirm);
+        }
+
         return "";
     }
 
@@ -199,6 +224,15 @@ public class App {
                     String[] splits = keyword.split("`");
                     dictionary.updateSlang(splits[0], Integer.parseInt(splits[1]), splits[2]);
                 }
+
+            case 6:
+                keyword = enterKeyword(choice);
+                String[] splits = keyword.split("`");
+                splits[0] = splits[0].toLowerCase();
+
+                if (splits[1].equals("y")) {
+                    dictionary.deleteASlang(splits[0]);
+                }
         }
 
         pressEnter();
@@ -221,41 +255,5 @@ public class App {
             handle(choose);
             choose = 0;
         }
-
-
-//        var dict = dictionary.get_dict();
-//        var dict_rev = dictionary.get_dict_rev();
-//
-//        for (var key : dict.keySet()) {
-//            System.out.print(key + " --> ");
-//
-//            var defs = dict.get(key).defs;
-//
-//            for (var def : defs) {
-//                System.out.print(def + ", ");
-//            }
-//
-//            System.out.println();
-//        }
-//        System.out.println();
-//
-//        for (var key : dict_rev.keySet()) {
-//            System.out.print(key + " --> ");
-//
-//            var defs = dict_rev.get(key).defs;
-//
-//            for (var def : defs) {
-//                System.out.print(def + ", ");
-//            }
-//
-//            System.out.println();
-//        }
-//        String string = "I will come and meet you at the 123woods";
-//        String keyword = "123woods";
-//
-//        Boolean found = Arrays.asList(string.split(" ")).contains(keyword);
-//        if(found){
-//            System.out.println("Keyword matched the string");
-//        }
     }
 }

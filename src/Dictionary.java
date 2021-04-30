@@ -261,4 +261,23 @@ public class Dictionary {
 
         System.out.println("\uD83D\uDCFA This word has been edited successfully.");
     }
+
+    public void deleteASlang(String word) {
+        var defs_dict = dict.get(word).defs;
+
+        for (var def: defs_dict) {
+            def = def.toLowerCase();
+            var defs_dict_rev = dict_rev.get(def).defs;
+
+            if (defs_dict_rev.size() == 1) {
+                dict_rev.remove(def);
+            } else {
+                defs_dict_rev.remove(word);
+            }
+        }
+
+        dict.remove(word);
+
+        System.out.println("\uD83D\uDCFA This word has been deleted successfully.");
+    }
 }
