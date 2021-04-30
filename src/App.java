@@ -8,7 +8,7 @@ public class App {
 
     static {
         dictionary = new Dictionary();
-        dictionary.loadDB();
+//        dictionary.loadDBFormTxtFile();
     }
 
     static void clearScreen() {
@@ -16,12 +16,20 @@ public class App {
         System.out.flush();
     }
 
+    static void pressEnter() {
+        String key_press = "";
+        do {
+            System.out.println("\uD83D\uDCFA Press 'ENTER' to continue...");
+            key_press = (new Scanner(System.in)).nextLine();
+        } while (key_press == "");
+    }
+
     static int showMenu() throws IOException {
         int choose = 0;
         Scanner scanner = new Scanner(System.in);
 
         try {
-            while (choose < 1 || choose > 6) {
+            while (choose < 1 || choose > 10) {
                 clearScreen();
 
                 System.out.println("\uD83D\uDCD6 SLANG-WORD DICTIONARY \uD83D\uDCD6");
@@ -31,6 +39,7 @@ public class App {
                 System.out.println("   4. Add a new slang-word");
                 System.out.println("   5. Edit a slang-word");
                 System.out.println("   6. Delete a slang-word");
+                System.out.println("   7. Reset entire data");
                 System.out.print("\nEnter your choice: ");
 
                 choose = scanner.nextInt();
@@ -42,27 +51,107 @@ public class App {
         return choose;
     }
 
-    static void pressEnter() {
-        String key_press = "";
+    static String input1() {
+        String sw = "";
+        String screen = "Enter the slang-word which you want to look up (slang-word cannot be empty): ";
+
         do {
-            System.out.println("\uD83D\uDCFA Press 'ENTER' to continue...");
-            key_press = (new Scanner(System.in)).nextLine();
-        } while (key_press == "");
+            clearScreen();
+
+            System.out.print(screen);
+            sw = (new Scanner(System.in)).nextLine().trim();
+        } while (sw.isEmpty());
+
+        return sw;
+    }
+
+    static int function1(Word word, String slang_word) {
+        if (word == null) {
+            String screen = String.format("\uD83D\uDCAC This slang-word does not exist in the data!!!\n\uD83D\uDCA1 Would you like to add '%s' to the database? [Y/N]: ", slang_word);
+            String confirm = "";
+
+            do {
+                clearScreen();
+
+                System.out.print(screen);
+                confirm = (new Scanner(System.in)).nextLine().trim().toLowerCase();
+            } while (!confirm.equals("y") && !confirm.equals("n"));
+
+            if (confirm.equals("y")) {
+                screen += "YES";
+                screen += String.format("\nEnter the '%s'\'s definition (the definition cannot be empty): ", slang_word);
+                String new_def = "";
+
+                do {
+                    clearScreen();
+
+                    System.out.print(screen);
+                    new_def = (new Scanner(System.in)).nextLine().trim();
+                } while (new_def.isEmpty());
+
+                boolean catcher = dictionary.addSlang(slang_word, new_def, 4);
+
+                if (catcher) System.out.println("\uD83D\uDCFA This word has been added to the data successfully.");
+                else System.out.println("⛔ Cannot add this word to the database!");
+            } else {
+                clearScreen();
+
+                screen += "NO";
+                System.out.println(screen);
+            }
+        } else {
+            String screen = "\uD83D\uDD0E The meanings of '" + word.word + "' are:";
+            for (int id = 0; id < word.defs.size(); ++id) {
+                screen += ("\n  \uD83D\uDD38 " + (id + 1) + ". " + word.defs.get(id));
+            }
+            screen += "\n\n\uD83D\uDCA1 Enter your choice:";
+            screen += "\n   1. Delete";
+            screen += "\n   2. Edit";
+            screen += "\n   ENTER. Skip";
+            String confirm = "";
+
+            do {
+                clearScreen();
+                System.out.println(screen);
+                confirm = (new Scanner(System.in)).nextLine().trim();
+            } while (!confirm.isEmpty() && !confirm.equals("1") && !confirm.equals("2"));
+
+            if (!confirm.isEmpty()) return Integer.parseInt(confirm);
+        }
+
+        return 0;
+    }
+
+    static String input2() {
+        String def = "";
+        String screen = "Enter the definition which you want to look up (definition cannot be empty): ";
+
+        do {
+            clearScreen();
+
+            System.out.print(screen);
+            def = (new Scanner(System.in)).nextLine().trim();
+        } while (def.isEmpty());
+
+        return def;
+    }
+
+    static void function2(Word definition) {
+        if (definition == null) {
+            clearScreen();
+            System.out.println("\uD83D\uDCAC This definition does not exist in the data!");
+        } else {
+            String screen = "\uD83D\uDD0E Slang-words of '" + definition.word + "' are:";
+            for (int id = 0; id < definition.defs.size(); ++id) {
+                screen += ("\n  \uD83D\uDD38 " + (id + 1) + ". " + definition.defs.get(id));
+            }
+
+            System.out.println(screen);
+        }
     }
 
     static String enterKeyword(int choice) {
         String keyword = "";
-
-        if (choice == 1 || choice == 2) {
-            do {
-                clearScreen();
-
-                System.out.print("Enter your keyword (keyword cannot be empty): ");
-                keyword = (new Scanner(System.in)).nextLine().trim();
-            } while (keyword == "");
-
-            return keyword.trim().toLowerCase();
-        }
 
         if (choice == 4) {
             int choose = 0;
@@ -140,7 +229,7 @@ public class App {
             } else {
                 do {
                     clearScreen();
-                    dictionary.searchBasedSlang(keyword);
+                    dictionary.searchSlang(keyword);
 
                     System.out.print(screen);
 
@@ -184,6 +273,18 @@ public class App {
             return (sw + "`" + confirm);
         }
 
+        if (choice == 7) {
+            String confirm = "";
+
+            do {
+                clearScreen();
+                System.out.print("Do you really want to delete entire the data? [Y/N]: ");
+                confirm = (new Scanner(System.in)).nextLine().trim().toLowerCase();
+            } while (!confirm.equals("y") && !confirm.equals("n"));
+
+            return confirm;
+        }
+
         return "";
     }
 
@@ -191,13 +292,14 @@ public class App {
         String keyword = "";
         switch (choice) {
             case 1:
-                keyword = enterKeyword(choice);
-                dictionary.searchBasedSlang(keyword);
+                String sw = input1();
+                int catcher = function1(dictionary.searchSlang(sw.toLowerCase()), sw);
+
                 break;
 
             case 2:
-                keyword = enterKeyword(choice);
-                dictionary.searchBasedDefinition(keyword);
+                String def = input2();
+                function2(dictionary.searchDefinition(def));
                 break;
 
             case 3:
@@ -209,10 +311,10 @@ public class App {
 
                 if (keyword != "") {
                     String[] splits = keyword.split("`");
-                    String word = splits[0];
+                    String word_ = splits[0];
                     int choose = Integer.parseInt(splits[1]);
-                    String def = splits[2].trim();
-                    dictionary.addSlangWord(word, def, choose);
+                    String _def = splits[2].trim();
+                    dictionary.addSlang(word_, _def, choose);
                 }
 
                 break;
@@ -232,6 +334,13 @@ public class App {
 
                 if (splits[1].equals("y")) {
                     dictionary.deleteASlang(splits[0]);
+                }
+
+            case 7:
+                keyword = enterKeyword(choice);
+
+                if (keyword.equals("y")) {
+                    dictionary.clearDB();
                 }
         }
 
