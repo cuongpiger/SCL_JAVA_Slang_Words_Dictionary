@@ -1,5 +1,6 @@
 import javax.imageio.IIOException;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
@@ -206,6 +207,72 @@ public class App {
         else System.out.println("⛔ An error occurred while adding this word to the database!");
     }
 
+    static String[] input5() {
+        String screen = "Enter your slang-word which you need to edit (slang-word cannot be empty): ";
+        String sw = "";
+        String new_def = "";
+        int id = -1;
+
+        do {
+            clearScreen();
+
+            System.out.print(screen);
+            sw = (new Scanner(System.in)).nextLine().trim();
+        } while (sw.isEmpty());
+
+        var word = dictionary.searchSlang(sw.toLowerCase());
+
+        if (word == null) {
+            System.out.println("\uD83D\uDCAC This slang-word does not exist in the database!");
+            return null;
+        } else {
+            screen += sw;
+
+            if (word.defs.size() > 1) {
+                screen = "\n\uD83D\uDD0E The meanings of '" + sw + "' are:";
+
+                for (int i = 0; i < word.defs.size(); ++i) {
+                    screen += ("\n  \uD83D\uDD38 " + (i + 1) + ". " + word.defs.get(i));
+                }
+
+                screen += "\nEnter the slang-word ID which you need to edit (slang-word ID cannot be empty): ";
+
+                do {
+                    clearScreen();
+
+                    System.out.print(screen);
+                    try {
+                        id = (new Scanner(System.in)).nextInt();
+                    } catch (Exception err) {
+                        id = -1;
+                    }
+                } while (id < 1 || id > word.defs.size());
+
+                screen += Integer.toString(id);
+            } else {
+                id = 1;
+            }
+
+            screen += "\nEnter your new definition: ";
+            id -= 1;
+
+            do {
+                clearScreen();
+
+                System.out.print(screen);
+                new_def = (new Scanner(System.in)).nextLine().trim();
+            } while (new_def.isEmpty());
+        }
+
+        String[] rt = { sw, new_def, Integer.toString(id) } ;
+        return rt;
+    }
+
+    static void function5(String slang_word, String definition, int option) {
+        dictionary.updateSlang(slang_word, definition, option);
+        System.out.println("\uD83D\uDCFA This word has been updated to the database successfully.");
+    }
+
     static String enterKeyword(int choice) {
         String keyword = "";
 
@@ -313,12 +380,9 @@ public class App {
                 break;
 
             case 5:
-                keyword = enterKeyword(choice);
-
-                if (keyword != "") {
-                    String[] splits = keyword.split("`");
-                    dictionary.updateSlang(splits[0], Integer.parseInt(splits[1]), splits[2]);
-                }
+                String[] keeperr = input5();
+                if (keeperr != null) function5(keeperr[0], keeperr[1], Integer.parseInt(keeperr[2]));
+                break;
 
             case 6:
                 keyword = enterKeyword(choice);

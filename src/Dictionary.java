@@ -262,35 +262,21 @@ public class Dictionary {
         return true;
     }
 
-    public void updateSlang(String word, int id, String n_def) {
-        var defs = dict.get(word).defs;
-        var del_def = defs.get(id);
+    public void updateSlang(String word, String n_def, int id) {
+        var dict_word = dict.get(word.toLowerCase());
+        var old_def = dict_word.defs.get(id);
+        var dict_rev_word = dict_rev.get(old_def.toLowerCase());
 
-        if (defs.contains(n_def)) {
-            defs.remove(id);
+        if (dict_rev_word.defs.size() == 1) dict_rev.remove(old_def.toLowerCase());
+        else dict_rev_word.defs.remove(word.toLowerCase());
 
-            dict_rev.get(del_def.toLowerCase()).defs.remove(dict_rev.get(del_def.toLowerCase()).defs.indexOf(word.toLowerCase()));
-
-            if (dict_rev.get(del_def.toLowerCase()).defs.size() == 0) {
-                dict_rev.remove(del_def.toLowerCase());
-            }
-
-            System.out.println("\uD83D\uDCFA This word has been edited successfully.");
-
-            return;
+        if (dict_rev.containsKey(n_def.toLowerCase())) dict_rev.get(n_def.toLowerCase()).defs.add(word.toLowerCase());
+        else {
+            var new_dict_rev_word = new Word(n_def.toLowerCase(), new ArrayList<String>(Arrays.asList(word.toLowerCase())));
+            dict_rev.put(n_def.toLowerCase(), new_dict_rev_word);
         }
 
-        defs.set(id, n_def);
-
-        if (!dict_rev.containsKey(n_def.toLowerCase())) {
-            Word new_word = new Word(n_def, new ArrayList<String>(Arrays.asList(word.toLowerCase())));
-            dict_rev.put(n_def.toLowerCase(), new_word);
-        } else {
-            var tmp_word = dict_rev.get(n_def);
-            tmp_word.defs.set(tmp_word.defs.indexOf(word.toLowerCase()), word.toLowerCase());
-        }
-
-        System.out.println("\uD83D\uDCFA This word has been edited successfully.");
+        dict_word.defs.set(id, n_def);
     }
 
     public void deleteASlang(String word) {
