@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact name="SCL_Slang_Words_Dictionary:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/SCL_Slang_Words_Dictionary_jar</output-path>
+    <root id="root">
+      <element id="archive" name="SCL_Slang_Words_Dictionary.jar">
+        <element id="module-output" name="SCL_Slang_Words_Dictionary" />
+      </element>
+    </root>
+  </artifact>
+</component>
