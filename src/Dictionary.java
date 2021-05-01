@@ -148,17 +148,22 @@ public class Dictionary {
         return true;
     }
 
-    public void clearDB() {
+    private boolean clearDB(String db_name) {
         try {
-            FileOutputStream fos =
-                    new FileOutputStream("DATABASES/hashmap.ser");
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(dict);
+            Path p = Paths.get(db_name);
+            Files.deleteIfExists(p);
+        } catch (IOException err) {
+            return false;
+        }
 
-            oos.close();
-            fos.close();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
+        return true;
+    }
+
+    public void clearEntireDB() {
+        String[] dbs = {db_dict, db_dict_rev, db_history_dict, db_history_dict_rev};
+
+        for (var db : dbs) {
+            clearDB(db);
         }
     }
 
@@ -299,5 +304,129 @@ public class Dictionary {
         dict.remove(word);
         saveDB(db_dict, dict);
         saveDB(db_dict_rev, dict_rev);
+    }
+
+    public Word onThisDaySlangWord() {
+        Random generator = new Random();
+        Object[] values = dict.values().toArray();
+        return (Word) values[generator.nextInt(values.length)];
+    }
+
+    public void gameSlang() {
+        Random generator = new Random();
+        Object[] slangs = dict.values().toArray();
+        Object[] defs = dict_rev.values().toArray();
+        int choice = -1;
+        String tmp = "";
+
+        while (choice == -1) {
+            Word word = (Word) slangs[generator.nextInt(slangs.length)];
+            String[] answers = {"", "", "", ""};
+
+            var word_word = word.word;
+            var word_answer = word.defs.get(generator.nextInt(word.defs.size()));
+            int i = 0;
+
+            while (i < 4) {
+                var tmp_def = (Word) defs[generator.nextInt(defs.length)];
+
+                if (word_answer != tmp_def.word) {
+                    answers[i++] = tmp_def.word;
+                }
+            }
+
+            answers[generator.nextInt(4)] = word_answer;
+            String screen = "\uD83D\uDCFA Enter ':exit' when you would like to stop";
+            screen += "\nSlang-word: " + word_word;
+
+            for (int id = 0; id < 4; ++id) {
+                screen += "\n   " + (id + 1) + ". " + answers[id];
+            }
+
+            screen += "\n\nEnter your choice: ";
+
+            do {
+                App.clearScreen();
+                System.out.print(screen);
+                try {
+                    tmp = (new Scanner(System.in)).nextLine().trim().toLowerCase();
+
+                    if (tmp.equals(":exit")) return;
+
+                    choice = Integer.parseInt(tmp);
+                } catch (Exception err) {
+                    choice = 5;
+                }
+            } while (choice == 5);
+
+            if (!answers[choice - 1].equals(word_answer)) {
+                App.clearScreen();
+
+                screen += "\n\uD83D\uDCFA Wrong, correct answer is '" + word_answer + "'";
+                System.out.println(screen);
+            }
+
+            choice = -1;
+            App.pressEnter();
+        }
+    }
+
+    public void gameDefinition() {
+        Random generator = new Random();
+        Object[] defs = dict_rev.values().toArray();
+        Object[] slangs = dict.values().toArray();
+        int choice = -1;
+        String tmp = "";
+
+        while (choice == -1) {
+            Word word = (Word) defs[generator.nextInt(defs.length)];
+            String[] answers = {"", "", "", ""};
+
+            var word_word = word.word;
+            var word_answer = word.defs.get(generator.nextInt(word.defs.size()));
+            int i = 0;
+
+            while (i < 4) {
+                var tmp_slang = (Word) slangs[generator.nextInt(slangs.length)];
+
+                if (word_answer != tmp_slang.word) {
+                    answers[i++] = tmp_slang.word;
+                }
+            }
+
+            answers[generator.nextInt(4)] = word_answer;
+            String screen = "\uD83D\uDCFA Enter ':exit' when you would like to stop";
+            screen += "\nSlang-word: " + word_word;
+
+            for (int id = 0; id < 4; ++id) {
+                screen += "\n   " + (id + 1) + ". " + answers[id];
+            }
+
+            screen += "\n\nEnter your choice: ";
+
+            do {
+                App.clearScreen();
+                System.out.print(screen);
+                try {
+                    tmp = (new Scanner(System.in)).nextLine().trim().toLowerCase();
+
+                    if (tmp.equals(":exit")) return;
+
+                    choice = Integer.parseInt(tmp);
+                } catch (Exception err) {
+                    choice = 5;
+                }
+            } while (choice == 5);
+
+            if (!answers[choice - 1].equals(word_answer)) {
+                App.clearScreen();
+
+                screen += "\n\uD83D\uDCFA Wrong, correct answer is '" + word_answer + "'";
+                System.out.println(screen);
+            }
+
+            choice = -1;
+            App.pressEnter();
+        }
     }
 }

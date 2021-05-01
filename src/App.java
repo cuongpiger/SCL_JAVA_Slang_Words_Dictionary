@@ -42,6 +42,9 @@ public class App {
                 System.out.println("   5. Edit a slang-word");
                 System.out.println("   6. Delete a slang-word");
                 System.out.println("   7. Reset entire data");
+                System.out.println("   8. On this day random slang-word");
+                System.out.println("   9. Slang-word game");
+                System.out.println("   10. Definition game");
                 System.out.print("\nEnter your choice: ");
 
                 choose = scanner.nextInt();
@@ -67,7 +70,7 @@ public class App {
         return sw;
     }
 
-    static int function1(Word word, String slang_word) {
+    static void function1(Word word, String slang_word) {
         if (word == null) {
             String screen = String.format("\uD83D\uDCAC This slang-word does not exist in the database!\n\uD83D\uDCA1 Would you like to add '%s' to the database? [Y/N]: ", slang_word);
             String confirm = "";
@@ -106,22 +109,8 @@ public class App {
             for (int id = 0; id < word.defs.size(); ++id) {
                 screen += ("\n  \uD83D\uDD38 " + (id + 1) + ". " + word.defs.get(id));
             }
-            screen += "\n\n\uD83D\uDCA1 Enter your choice:";
-            screen += "\n   1. Delete";
-            screen += "\n   2. Edit";
-            screen += "\n   ENTER. Skip";
-            String confirm = "";
-
-            do {
-                clearScreen();
-                System.out.println(screen);
-                confirm = (new Scanner(System.in)).nextLine().trim();
-            } while (!confirm.isEmpty() && !confirm.equals("1") && !confirm.equals("2"));
-
-            if (!confirm.isEmpty()) return Integer.parseInt(confirm);
+            System.out.println(screen);
         }
-
-        return 0;
     }
 
     static String input2() {
@@ -264,7 +253,7 @@ public class App {
             } while (new_def.isEmpty());
         }
 
-        String[] rt = { sw, new_def, Integer.toString(id) } ;
+        String[] rt = {sw, new_def, Integer.toString(id)};
         return rt;
     }
 
@@ -311,31 +300,35 @@ public class App {
         }
     }
 
-    static String enterKeyword(int choice) {
-        String keyword = "";
+    static boolean input7() {
+        String confirm = "";
 
-        if (choice == 7) {
-            String confirm = "";
+        do {
+            clearScreen();
 
-            do {
-                clearScreen();
-                System.out.print("Do you really want to delete entire the data? [Y/N]: ");
-                confirm = (new Scanner(System.in)).nextLine().trim().toLowerCase();
-            } while (!confirm.equals("y") && !confirm.equals("n"));
+            System.out.print("Do you really want to delete entire the data? [Y/N]: ");
+            confirm = (new Scanner(System.in)).nextLine().trim().toLowerCase();
+        } while (!confirm.equals("y") && !confirm.equals("n"));
 
-            return confirm;
+        return confirm.equals("y");
+    }
+
+    static void function8() {
+        var word = dictionary.onThisDaySlangWord();
+
+        String screen = "\uD83D\uDD0E The meanings of '" + word.word + "' are:";
+        for (int id = 0; id < word.defs.size(); ++id) {
+            screen += ("\n  \uD83D\uDD38 " + (id + 1) + ". " + word.defs.get(id));
         }
 
-        return "";
+        System.out.println(screen);
     }
 
     static void handle(int choice) {
-        String keyword = "";
         switch (choice) {
             case 1:
                 String sw = input1();
-                int catcher = function1(dictionary.searchSlang(sw.toLowerCase()), sw);
-
+                function1(dictionary.searchSlang(sw.toLowerCase()), sw);
                 break;
 
             case 2:
@@ -363,11 +356,20 @@ public class App {
                 break;
 
             case 7:
-                keyword = enterKeyword(choice);
+                if (input7()) dictionary.clearEntireDB();
+                break;
 
-                if (keyword.equals("y")) {
-                    dictionary.clearDB();
-                }
+            case 8:
+                function8();
+                break;
+
+            case 9:
+                dictionary.gameSlang();
+                break;
+
+            case 10:
+                dictionary.gameDefinition();
+                break;
         }
 
         pressEnter();
