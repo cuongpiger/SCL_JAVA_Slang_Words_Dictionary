@@ -51,7 +51,7 @@ public class Dictionary {
     private static final String db_history_dict = "DATABASES/db_history_dict.ser";
     private static final String db_history_dict_rev = "DATABASES/db_history_dict_rev.ser";
     private static final String db_dict = "DATABASES/db_dict.ser";
-    private static final String db_dict_rev = "DATABASES/dict_dict_rev.ser";
+    private static final String db_dict_rev = "DATABASES/db_dict_rev.ser";
 
 
     Dictionary() {
@@ -132,6 +132,36 @@ public class Dictionary {
         }
     }
 
+    private boolean saveDB(String db_name, Object obj) {
+        try {
+            FileOutputStream fos = new FileOutputStream(db_name);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(obj);
+
+            oos.flush();
+            oos.close();
+            fos.close();
+        } catch (IOException err) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void clearDB() {
+        try {
+            FileOutputStream fos =
+                    new FileOutputStream("DATABASES/hashmap.ser");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(dict);
+
+            oos.close();
+            fos.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
     public Word searchSlang(String slang_word) {
         // if `slang_word` exists in `dict`
         if (dict.containsKey(slang_word)) {
@@ -166,38 +196,6 @@ public class Dictionary {
         return null;
     }
 
-    private boolean saveDB(String db_name, Object obj) {
-        try {
-            FileOutputStream fos = new FileOutputStream(db_name);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(obj);
-
-            oos.flush();
-            oos.close();
-            fos.close();
-        } catch (IOException err) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public void clearDB() {
-        try {
-            FileOutputStream fos =
-                    new FileOutputStream("DATABASES/hashmap.ser");
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(dict);
-
-            oos.close();
-            fos.close();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-    }
-
-
-
     public void showHistory() {
         if (history_dict == null && history_dict_rev == null) {
             System.out.println("\uD83D\uDCAC Program's history is empty!!!.");
@@ -208,7 +206,7 @@ public class Dictionary {
         System.out.format("%20s%40s%n", "Slang-word", "Definition");
         int lim = Math.max(history_dict.size(), history_dict_rev.size());
 
-        for (int i = 0; i < lim; ++i) {
+        for (int i = lim - 1; i >= 0; --i) {
             String slang = i < history_dict.size() ? history_dict.get(i).word : "";
             String def = i < history_dict_rev.size() ? history_dict_rev.get(i).word : "";
             System.out.format("%40s%40s%n", slang, def);
@@ -216,41 +214,50 @@ public class Dictionary {
     }
 
     public boolean addSlang(String word, String def, int option) {
-        if (option == 1) {
-            var defs = dict.get(word.toLowerCase()).defs;
-            defs.clear();
-            defs.add(def);
+        if (option == 1) { // overwrite
+            var word_dict = dict.get(word.toLowerCase()); // find
 
-            Word tmp_word = dict_rev.get(word);
+            for (var d : word_dict.defs) {
+                var tmp = dict_rev.get(d);
 
-            for (var d : tmp_word.defs) {
-                if (d.equals(def)) {
-                    System.out.println("\uD83D\uDCAC You defined it!!!");
-
-                    return false;
-                }
+                if (tmp.defs.size() == 1) dict_rev.remove(d);
+                else tmp.defs.remove(word.toLowerCase());
             }
 
-            tmp_word.defs.add(def);
-        } else if (option == 2) {
+            word_dict.defs.clear();
+            word_dict.defs.add(def);
+
+            var new_word_rev = new Word(def, new ArrayList<String>(Arrays.asList(word.toLowerCase())));
+            dict_rev.put(def.toLowerCase(), new_word_rev);
+        } else if (option == 2) { // duplicate
             var defs = dict.get(word.toLowerCase()).defs;
+
+            for (var d : defs) {
+                if (d.equals(def)) return false;
+            }
+
             defs.add(def);
-
-            Word tmp_word = dict_rev.get(word);
-            tmp_word.defs.clear();
-            tmp_word.defs.add(def);
-        } else if (option == 4) {
-            Word new_word = new Word(word, new ArrayList<String>(Arrays.asList(def)));
-            dict.put(word.toLowerCase(), new_word);
-
-            Word new_word_rev = new Word(def, new ArrayList<String>(Arrays.asList(word.toLowerCase())));
 
             if (dict_rev.containsKey(def.toLowerCase())) {
                 dict_rev.get(def.toLowerCase()).defs.add(word.toLowerCase());
             } else {
+                Word new_word = new Word(def, new ArrayList<String>(Arrays.asList(word.toLowerCase())));
+                dict_rev.put(def.toLowerCase(), new_word);
+            }
+        } else if (option == 4) { // new word
+            Word new_word = new Word(word, new ArrayList<String>(Arrays.asList(def)));
+            dict.put(word.toLowerCase(), new_word);
+
+            if (dict_rev.containsKey(def.toLowerCase())) {
+                dict_rev.get(def.toLowerCase()).defs.add(word.toLowerCase());
+            } else {
+                Word new_word_rev = new Word(def, new ArrayList<String>(Arrays.asList(word.toLowerCase())));
                 dict_rev.put(def.toLowerCase(), new_word_rev);
             }
         }
+
+        saveDB(db_dict, dict);
+        saveDB(db_dict_rev, dict_rev);
 
         return true;
     }
