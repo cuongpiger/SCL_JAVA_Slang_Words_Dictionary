@@ -277,9 +277,12 @@ public class Dictionary {
         }
 
         dict_word.defs.set(id, n_def);
+
+        saveDB(db_dict, dict);
+        saveDB(db_dict_rev, dict_rev);
     }
 
-    public void deleteASlang(String word) {
+    public void deleteSlang(String word) {
         var defs_dict = dict.get(word).defs;
 
         for (var def : defs_dict) {
@@ -294,7 +297,7 @@ public class Dictionary {
         }
 
         dict.remove(word);
-
-        System.out.println("\uD83D\uDCFA This word has been deleted successfully.");
+        saveDB(db_dict, dict);
+        saveDB(db_dict_rev, dict_rev);
     }
 }
