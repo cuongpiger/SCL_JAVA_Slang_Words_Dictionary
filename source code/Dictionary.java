@@ -165,6 +165,11 @@ public class Dictionary {
         for (var db : dbs) {
             clearDB(db);
         }
+
+        dict.clear();
+        dict_rev.clear();
+        history_dict.clear();
+        history_dict_rev.clear();
     }
 
     public Word searchSlang(String slang_word) {
